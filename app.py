@@ -135,33 +135,20 @@ def plot_example_match(fm, confidence="medium"):
 
 @app.route('/uploadajax', methods = ['POST'])
 def upload_image():
-    if request.method == 'POST':
-        files = request.files['file']
-        if files:
-            filename = secure_filename(files.filename)
-            filename = gen_file_name(filename)
-            if filename.endswith(".bmp") or filename.endswith(".jpeg"):
-                mime_type = files.content_type
-                # save file to disk
-                uploaded_file_path = os.path.join(UPLOAD_FOLDER, filename)
-                files.save(uploaded_file_path)
-                # get file size after saving
-                size = os.path.getsize(uploaded_file_path)
-                uploadfile(name=filename, type=mime_type, size=size)
-                data_filename = request.form.get("filename")
-                material = request.form.get("material")
-                sb = request.form.get("sb")
-                output_filename = "test.png" # hard code for testing
-                with open(output_filename, 'rb') as image:
-                    img_str = base64.b64encode(image.read())
-                return {'image': img_str, 'output_filename': output_filename}
+        output_filename = "test.png" # hard code for testing
+        with open(output_filename, 'rb') as image:
+                img_str = base64.b64encode(image.read())
+        return {'image': img_str, 'output_filename': output_filename}
 
 
 
 @app.route('/download_image', methods=['GET', 'POST'])
-def download():
+def download_image():
+    # this function is called, so its in send from dir
+    print("efjefalkkfealklkfelklk")
     filename = request.form['output_filename']
-    uploads = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+    uploads = os.path.join(app.root_path)
+    print(uploads, filename)
     return send_from_directory(directory=uploads, filename=filename, as_attachment=True)
 
 # TODO: export sample spectra, shuffle random spectrum in case poor match shown
@@ -170,11 +157,6 @@ def download():
 def actually_do_the_stuff():
     filename = "test_candidate.png"
     return plot_example_match(filename)
-
-# @app.route('download-image', methods=['POST'])
-# def send_image_to_user():
-#     filename = 
-#     send_from_directory()
 
 @app.route('/')
 def home():
