@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Raman data analyser{% endblock %}
+
+{% block page_content %}
+<div>
+    <h2> Results </h2>
+    <!-- TODO: test with baseline!! -->
+
+    <blockquote>
+        Found {{number_matches}} locations out of {{number_locations}} positive for {{material}} with {{confidence}} confidence.
+        <!-- TODO: include confidence values!!!! -->
+            {% if baseline_example is defined %}
+            <div>
+                    <img src="data:image/png;base64,{{baseline_example}}" class="responsive"/>
+            </div>
+            {% endif %}
+            <div>
+                Examples of randomly selected matches (medium confidence):<br>
+                    <img src="data:image/png;base64,{{match_example}}"  class="responsive"/> <br>
+            </div>
+            <div class="row fileupload-buttonbar">
+                <div class="col-lg-7">
+                    <form id="plot-med" method="POST" enctype="multipart/form-data">
+
+                        <!-- The fileinput-button span is used to style the file input field as button -->
+                        <button type="submit" class="btn btn-primary start" id="med-conf">
+                                <span>Plot different medium confidence spectra</span>
+                            </button>
+                    </form>
+                    <form id="plot-high" method="POST" enctype="multipart/form-data">
+
+                        <button type="submit" class="btn btn-primary start" id="high-conf">
+                            <span>Plot different high confidence spectra</span>
+                        </button>
+                    </form>
+                    </div>
+
+                </div>
+        </blockquote>
+        <blockquote>    
+        <!-- Redirect browsers with JavaScript disabled to the origin page -->
+            <noscript><input type="hidden" name="redirect" value="http://blueimp.github.io/jQuery-File-Upload/"></noscript>
+            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+            <form id="upload-file" method="post" enctype="multipart/form-data">
+                <fieldset>
+                    <label for="file">Select a photo</label>
+                    <input name="file" type="file"></br>
+                    Output filename: 
+                    <input type="text" name="output_filename"></br>
+                </fieldset>
+                <fieldset>
+                    <button id="upload-file-btn" class="btn btn-primary start" type="button">Upload and plot locations</button>
+                </fieldset>
+                <input type="hidden" name="filename"  value = {{filename}} > 
+                <input type="hidden" name="material" value = {{material}} >
+                <input type="hidden" name="sb" value = {{subtract_baseline}}>
+            </form>
+            <div id="for-image">
+            </div>
+            <div id="for-button" style="display:none;"> 
+            <form id="download-image"  action="//127.0.0.1:5000/download-image" method="post">
+                <input type="hidden" id = "o" name="output_filename">
+                <button  id="download-image-btn" class="btn btn-primary start" type="submit">Download image of match positions</button>
+            </form>
+            </div>
+        </blockquote>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="static/js/vendor/jquery.ui.widget.js"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="http://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="http://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
+<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
+<!-- blueimp Gallery script -->
+<script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="static/js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="static/js/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="static/js/jquery.fileupload-process.js"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="static/js/jquery.fileupload-image.js"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="static/js/jquery.fileupload-audio.js"></script>
+<!-- The File Upload video preview plugin -->
+<script src="static/js/jquery.fileupload-video.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="static/js/jquery.fileupload-validate.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="static/js/jquery.fileupload-ui.js"></script>
+<!-- The main application script -->
+<script src="static/js/main.js"></script>
+<script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  </script>
+
+    <script type=text/javascript>
+                $(function() {
+                    $('#upload-file-btn').click(function() {
+                         var form_data = new FormData($('#upload-file')[0]);
+                        $.ajax({
+                        type: 'POST',
+                        url: '/uploadajax',
+                        data: form_data,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(data) {
+                        img = document.createElement("img");
+                        //img.src = "http://127.0.0.1:5000/uploads/L_M12_Spleen_Sec1_Area.bmp"
+                        //img.src="/Users/mbbxhkb2/Documents/raman_imaging/find_peaks/dash/uploads/" + data.name
+                        img.src = "data:image/png;base64,"+data.image
+                        var elem = document.getElementById("for-image")
+                        elem.appendChild(img)
+                        // add output filename to form for allowing user to download image
+                        filename = document.getElementById("o")
+                        console.log(data)
+                        console.log(data.output_filename)
+                        filename.value = data.output_filename
+                        // show button for dowloading image
+                        // doing to form element gives null 
+                        //var b = document.getElementById("dowload-image") // tried with special div and was getting typr error, must be instance of node
+                        //b.appendChild('<button  id="download-image-btn" type="button">Download image of match positions</button>')
+                        var b = document.getElementById("for-button")
+                        b.style.display ="block"
+                    console.log('Success!');
+                },
+            });
+        });
+    });
+              </script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
+<!--[if (gte IE 8)&(lt IE 10)]>
+<script src="js/cors/jquery.xdr-transport.js"></script>
+<![endif]-->
+{% endblock %}
