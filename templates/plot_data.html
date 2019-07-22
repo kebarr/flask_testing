@@ -15,19 +15,19 @@
             </div>
             {% endif %}
             <div>
-                Examples of randomly selected matches (medium confidence):<br>
-                    <img src="data:image/png;base64,{{match_example}}"  class="responsive"/> <br>
+                Examples of randomly selected matches ({{confidence}} confidence):<br>
+                    <img id="spectra" src="data:image/png;base64,{{match_example}}"  class="responsive"/> <br>
             </div>
             <div class="row fileupload-buttonbar">
                 <div class="col-lg-7">
-                    <form id="plot-med" method="POST" enctype="multipart/form-data">
+                    <form id="plot_med" method="POST" enctype="multipart/form-data">
 
                         <!-- The fileinput-button span is used to style the file input field as button -->
                         <button type="submit" class="btn btn-primary start" id="med-conf">
                                 <span>Plot different medium confidence spectra</span>
                             </button>
                     </form>
-                    <form id="plot-high" method="POST" enctype="multipart/form-data">
+                    <form id="plot_high" method="POST" enctype="multipart/form-data">
 
                         <button type="submit" class="btn btn-primary start" id="high-conf">
                             <span>Plot different high confidence spectra</span>
@@ -117,8 +117,6 @@
                         processData: false,
                         success: function(data) {
                         img = document.createElement("img");
-                        //img.src = "http://127.0.0.1:5000/uploads/L_M12_Spleen_Sec1_Area.bmp"
-                        //img.src="/Users/mbbxhkb2/Documents/raman_imaging/find_peaks/dash/uploads/" + data.name
                         img.src = "data:image/png;base64,"+data.image
                         var elem = document.getElementById("for-image")
                         elem.appendChild(img)
@@ -128,11 +126,41 @@
                         console.log(data.output_filename)
                         filename.value = data.output_filename
                         // show button for dowloading image
-                        // doing to form element gives null 
-                        //var b = document.getElementById("dowload-image") // tried with special div and was getting typr error, must be instance of node
-                        //b.appendChild('<button  id="download-image-btn" type="button">Download image of match positions</button>')
                         var b = document.getElementById("for-button")
                         b.style.display ="block"
+                    console.log('Success!');
+                },
+            });
+        });
+    });
+    $(function() {
+        // should be simpler cos no form data
+                    $('#plot_med').click(function() {
+                        $.ajax({
+                        type: 'POST',
+                        url: '/plot_med',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(data) {
+                        var img = document.getElementById("spectra")
+                        img.src = "data:image/png;base64,"+data.image
+                    console.log('Success!');
+                },
+            });
+        });
+    });
+    $(function() {
+                    $('#plot_high').click(function() {
+                        $.ajax({
+                        type: 'POST',
+                        url: '/plot_high',
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function(data) {
+                        var img = document.getElementById("spectra")
+                        img.src = "data:image/png;base64,"+data.image
                     console.log('Success!');
                 },
             });
