@@ -135,7 +135,8 @@
     });
     $(function() {
         // should be simpler cos no form data
-                    $('#plot_med').click(function() {
+                    $('#med-conf').click(function() {
+                        console.log("clicked plot med");
                         $.ajax({
                         type: 'POST',
                         url: '/plot_med',
@@ -151,7 +152,8 @@
         });
     });
     $(function() {
-                    $('#plot_high').click(function() {
+                    $('#high-conf').click(function() {
+                        console.log("clicked plot high");
                         $.ajax({
                         type: 'POST',
                         url: '/plot_high',

@@ -140,6 +140,20 @@ def upload_image():
                 img_str = base64.b64encode(image.read())
         return {'image': img_str, 'output_filename': output_filename}
 
+@app.route('/plot_med', methods = ['POST'])
+def plot_med():
+        filename = "test.png" # hard code for testing
+        with open(filename, 'rb') as image:
+                img_str = base64.b64encode(image.read())
+        return {'image': img_str}
+
+@app.route('/plot_high', methods = ['POST'])
+def plot_high():
+        filename = "test.png" # hard code for testing
+        with open(filename, 'rb') as image:
+                img_str = base64.b64encode(image.read())
+        return {'image': img_str}
+
 
 
 @app.route('/download_image', methods=['GET', 'POST'])
