@@ -131,7 +131,7 @@ def get_example_matches(fm, confidence="medium", number_to_plot=2):
 def plot_example_match(fm, confidence="medium"):
     with open(fm, 'rb') as image:
         img_data = base64.b64encode(image.read())
-    return render_template('plot_data.html', number_matches=42, number_locations=121, match_example=img_data, filename=fm, material="graphene_oxide", confidence=confidence)
+    return render_template('plot_data.html', number_matches=42, number_locations=121, match_example=img_data, template=img_data, filename=fm, material="graphene_oxide", confidence=confidence)
 
 @app.route('/uploadajax', methods = ['POST'])
 def upload_image():
